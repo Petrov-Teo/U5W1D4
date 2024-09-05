@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 
 
 public class UserRunner implements CommandLineRunner {
+
     @Autowired
     private UserService userService;
 

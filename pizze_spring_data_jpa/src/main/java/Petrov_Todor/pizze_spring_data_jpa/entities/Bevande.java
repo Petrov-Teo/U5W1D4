@@ -4,7 +4,7 @@ package Petrov_Todor.pizze_spring_data_jpa.entities;
 import Petrov_Todor.pizze_spring_data_jpa.entities.enums.DimensioneBevanda;
 import lombok.Getter;
 
-public class Bevande implements Calorie {
+public class Bevande {
     @Getter
     private String nome;
     @Getter
@@ -31,11 +31,6 @@ public class Bevande implements Calorie {
 
     public void setPrezzo(double prezzo) {
         this.prezzo = prezzo;
-    }
-
-    @Override
-    public double getCalorie() {
-        return calorie;
     }
 
     public void setCalorie(double calorie) {

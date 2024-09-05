@@ -1,12 +1,11 @@
 package Petrov_Todor.pizze_spring_data_jpa.entities;
 
-
-
 import Petrov_Todor.pizze_spring_data_jpa.entities.enums.BasePizza;
 import Petrov_Todor.pizze_spring_data_jpa.entities.enums.DimensionePizza;
 import Petrov_Todor.pizze_spring_data_jpa.entities.enums.TipoImpasto;
-import Petrov_Todor.pizze_spring_data_jpa.entities.toppings.Topping;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,27 +14,46 @@ import java.util.UUID;
 @Entity
 @Table(name = "Pizze")
 public class Pizza {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private UUID id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO) // Use AUTO for UUID
+    private UUID id;
+
     private String nome;
+@Enumerated(EnumType.STRING)
     private TipoImpasto tipoImpasto;
+@Enumerated(EnumType.STRING)
     private BasePizza base;
+
     private DimensionePizza dimensionePizza;
-    private List<String> ingredienti;
+
+    @ElementCollection
+    @CollectionTable(name = "ingredienti", joinColumns = @JoinColumn(name = "pizza_id"))
+    @Column(name = "ingrediente")
+    private List<String> ingredienti = new ArrayList<>();
+
     @ManyToMany
-    private List<Topping> toppings;
+    @JoinTable(
+            name = "pizza_topping",
+            joinColumns = @JoinColumn(name = "pizza_id"),
+            inverseJoinColumns = @JoinColumn(name = "topping_id")
+    )
+    private List<Topping> toppings = new ArrayList<>();
+
     private double prezzo;
+
+    @Setter
     private double calorie;
+
     private boolean vegetariana;
 
+    // Default constructor
+    public Pizza() {}
 
-
-    public Pizza() {
-    }
-
-    public Pizza(String nome, TipoImpasto tipoImpasto, BasePizza base, DimensionePizza dimensionePizza, List<String> ingredienti, List<Topping> toppings, double prezzo, boolean vegetariana, double calorie) {
-        this.id = id;
+    // Parameterized constructor
+    public Pizza(String nome, TipoImpasto tipoImpasto, BasePizza base, DimensionePizza dimensionePizza,
+                 List<String> ingredienti, List<Topping> toppings, double prezzo, boolean vegetariana,
+                 double calorie) {
         this.nome = nome;
         this.tipoImpasto = tipoImpasto;
         this.base = base;
@@ -44,43 +62,33 @@ private UUID id;
         this.toppings = toppings != null ? new ArrayList<>(toppings) : new ArrayList<>();
         this.prezzo = prezzo;
         this.vegetariana = vegetariana;
-        this.calorie = calorie;
+        this.calorie = calcolaCalorieTotale();
     }
-
-
 
     @Override
     public String toString() {
         return "Pizza{" +
-                "Id=" + id +
-                "nome='" + nome + '\'' +
-                ", tipoImpasto=" + tipoImpasto +
-                ", base=" + base +
-                ", dimensionePizza=" + dimensionePizza +
-                ", ingredienti=" + ingredienti +
-                ", toppings=" + toppings +
-                ", prezzo=" + prezzo +
-                ", calorie=" + calorie +
-                ", vegetariana=" + vegetariana +
+                "Id=" + id + ", " +
+                "nome='" + nome + '\'' + ", " +
+                "tipoImpasto=" + tipoImpasto + ", " +
+                "base=" + base + ", " +
+                "dimensionePizza=" + dimensionePizza + ", " +
+                "ingredienti=" + ingredienti + ", " +
+                "toppings=" + toppings + ", " +
+                "prezzo=" + prezzo + ", " +
+                "calorie=" + calorie + ", " +
+                "vegetariana=" + vegetariana +
                 '}';
     }
 
+    // Getters and Setters
     public UUID getId() {
         return id;
-    }
-
-    public double getCalorie() {
-        return calorie;
-    }
-
-    public void setCalorie(double calorie) {
-        this.calorie = calorie;
     }
 
     public String getNome() {
         return nome;
     }
-
 
     public void setNome(String nome) {
         this.nome = nome;
@@ -146,7 +154,6 @@ private UUID id;
         toppings.add(topping);
     }
 
-
     public double calcolaPrezzoTotale() {
         double prezzoTotale = prezzo;
         for (Topping topping : toppings) {
@@ -155,7 +162,12 @@ private UUID id;
         return prezzoTotale;
     }
 
+    public double calcolaCalorieTotale() {
 
+        double calorieTotale = calorie;
+        for (Topping topping : toppings) {
+            calorieTotale += topping.getCalorie();
+        }
+        return calorieTotale;
+    }
 }
-
-
